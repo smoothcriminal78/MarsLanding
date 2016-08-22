@@ -1,11 +1,4 @@
  Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm
 
 ## Directory-based project format:
-.idea/
-project/project/
-project/target/
-src/main/java/
-src/main/resources/
-src/main/scala-2.11/
-src/test/
-target/
+/.idea/
