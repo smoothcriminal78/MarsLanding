@@ -1,4 +1,5 @@
 name := "MarsLanding"
+mainClass in (Compile, run) := Some("com.example.MarsLander")
 
 version := "1.0"
 
