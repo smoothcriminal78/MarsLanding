@@ -3,7 +3,7 @@ package com.example
 import scala.collection.mutable._
 import scala.math._
 
-/**
+/*
   * Created by Dima on 20.08.2016.
   */
 class MarsLander {
@@ -14,26 +14,31 @@ class MarsLander {
   val maxY = 150
 
   def plotRoute(q: Queue[LandingData]): Queue[LandingData] = {
-    val l = q.last
-    val e = LandingData(l.x, l.y, l.hs, l.vs, l.ang, l.th)
+    val e = q.last.copy()
     import e._
-    if (y > maxY) {
-      ang += calcAngle(l)
-      th = if (vs < -39) 4 else 3
-      q += nextPoint(e)
-      //level-off correction
-      //      val lo = levelOff(q)
-      //      if(lo.isEmpty) plotRoute(q) else q
-      val ab = applyBraking(q)
-      if (ab.isEmpty) plotRoute(q) else q
-    } else {
-      q
+      if (y > maxY) {
+        ang += calcAngle(e)
+        th = if (vs < -39) 4 else 3
+
+        //level-off correction
+        //val lo = levelOff(q)
+        //if(lo.isEmpty) plotRoute(q) else q
+
+        val ab = applyBraking(Queue(e.copy(t=2)), -ang)
+        if(ab._1.isEmpty) {
+          q += nextPoint(e)
+          println("last q " + q.last)
+          plotRoute(q)
+        } else {
+          q++=ab._1
+        }
+      } else {
+        q
+      }
     }
-  }
 
   def levelOff(q: Queue[LandingData]): Queue[LandingData] = {
-    val l = q.last
-    val e = LandingData(l.x, l.y, l.hs, l.vs, l.ang, l.th)
+    val e = q.last.copy()
     e.ang += (
       if (e.ang < 15) -e.ang
       else if (e.ang >= 15) 15
@@ -46,24 +51,27 @@ class MarsLander {
     ang match {
       case 0 => if (x >= minX || y <= maxY) q else Queue()
       case _ => {
-        q += LandingData(x, y, hs, vs, ang, th, 1);
+        q += e.copy(t=1)
         levelOff(q)
       }
     }
   }
 
-  def applyBraking(q: Queue[LandingData]): Queue[LandingData] = {
-    println(q.last)
-    val l = q.last
-    val e = LandingData(l.x, l.y, l.hs, l.vs, l.ang, l.th)
-    l.ang -= calcAngle(l)
+  def applyBraking(q: Queue[LandingData], a:Int): (Queue[LandingData], Int) = {
+    val e = q.last.copy()
+    println("last: " + e)
+
+    e.ang=if(a>0) e.ang+15 else e.ang-15 
+    if((a>0 && e.ang>a) || (a<0 && e.ang<a)) e.ang=a 
+    
     val np = nextPoint(e)
     import np._
-    if (hs == 0) {
-      q
-    } else Queue()
-    q += LandingData(x, y, hs, vs, ang, th, 2);
-    applyBraking(q)
+    if(abs(hs)<20){
+      if(x>=minX) ((q,a)) else ((Queue(), -1))
+    } else {
+      q += LandingData(x, y, hs, vs, ang, th, 2);
+      applyBraking(q,a)
+    }
   }
 
   def nextPoint(data: LandingData) = {
@@ -94,7 +102,7 @@ object MarsLander {
   def main(args: Array[String]): Unit = {
     val ml = new MarsLander
     val q1 = ml.plotRoute(Queue(LandingData(2500, 2700)))
-    q1.foreach(println)
+    //q1.foreach(println)
     //    println(ml.calcAngle(LandingData(4500, 2700)))
   }
 }
