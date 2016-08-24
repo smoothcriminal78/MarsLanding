@@ -14,7 +14,12 @@ import scala.util.Random
   * Created by Dima on 20.08.2016.
   */
 object MainWindow extends SimpleSwingApplication {
-  val ground = List(0, 100, 1000, 500, 1500, 1500, 3000, 1000, 4000, 150, 5500, 150, 6999, 800)
+  //easy on the right
+//  val ground = List(0, 100, 1000, 500, 1500, 1500, 3000, 1000, 4000, 150, 5500, 150, 6999, 800)
+  
+  //high ground
+  val ground = List(0,1000, 300,1500, 350,1400, 500,2100, 1500,2100, 2000,200, 2500,500, 2900,300, 3000,200, 3200,1000, 3500,500, 3800,800, 4000,200, 4200,800, 4800,600, 5000,1200, 5500,900, 6000,500, 6500,300, 6999,500)
+
   var routes = Map[Int, List[LandingData]]()
 
   override def top = new MainFrame {
@@ -53,7 +58,8 @@ object MainWindow extends SimpleSwingApplication {
     reactions += {
       case ButtonClicked(component) if component == button => {
         val ml = new MarsLander
-        val r = ml.plotRoute(mutable.Queue(LandingData(2500, 2700))).flatMap(List(_)).toList
+        val r = ml.plotRoute(mutable.Queue(LandingData(6500, 2700, hs= -50, ang=90))).flatMap(List(_)).toList
+//        val r = ml.plotRoute(mutable.Queue(LandingData(2500, 2700))).flatMap(List(_)).toList
         routes += (if (routes.isEmpty) 0 else routes.keys.max + 1) -> r
 
         repaint()
