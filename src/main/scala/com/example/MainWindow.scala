@@ -58,7 +58,7 @@ object MainWindow extends SimpleSwingApplication {
     reactions += {
       case ButtonClicked(component) if component == button => {
         val ml = new MarsLander
-        val r = ml.plotRoute(mutable.Queue(LandingData(6500, 2700, hs= -50, ang=90))).flatMap(List(_)).toList
+        val r = ml.plotRoute(mutable.Queue(LandingData(6500, 2700, hs=50, ang=90))).flatMap(List(_)).toList
         //val r = ml.plotRoute(mutable.Queue(LandingData(7500, 2700))).flatMap(List(_)).toList
         routes += (if (routes.isEmpty) 0 else routes.keys.max + 1) -> r
 

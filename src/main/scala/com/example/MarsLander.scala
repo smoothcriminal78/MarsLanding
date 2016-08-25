@@ -85,7 +85,7 @@ class MarsLander {
 
     val np = nextPoint(e)
     import np._
-    if(abs(hs)<20){
+    if(abs(hs)<=20 || np.hs>e.hs){
       if(y>=alt && x>=p1 && x<=p2) ((q,a)) else ((Queue(), -1))
     } else {
       q += LandingData(x, y, hs, vs, ang, th, 2);
@@ -106,13 +106,16 @@ class MarsLander {
     val dx: Double = x - (if(x<p1) p1 else if(x>p2) p2 else p1+(p2-p1)/2)
     val dy: Double = y - alt
 
-    val tarAng = round(toDegrees(atan(dy/dx))).toInt - ang
-    println(s"$tarAng")
-    if (tarAng > 0 && tarAng < 15) tarAng
-    else if (tarAng < 0 && tarAng > -15) -tarAng
-    else if (tarAng >= 15) 15
-    else if (tarAng <= -15) -15
-    else 0
+    val tarAng = round(toDegrees(atan(dy/dx))).toInt
+
+    val d = abs(tarAng) - abs(ang)
+
+     if (tarAng < ang) {
+       if(d >= 15) -15 else -tarAng
+     } else if (tarAng > ang) { 
+       if(d >=15) 15 else tarAng
+     }
+     else 0 
   }
 }
 
