@@ -77,7 +77,7 @@ class MarsLander {
 
   def applyBraking(q: Queue[LandingData], a:Int): (Queue[LandingData], Int) = {
     val e = q.last.copy()
-
+    println(e)
     e.ang=if(a>0) e.ang+15 else e.ang-15
     if((a>0 && e.ang>a) || (a<0 && e.ang<a)) e.ang=a
 
@@ -103,15 +103,16 @@ class MarsLander {
 
   def calcAngle(data: LandingData) = {
     import data._
-    //val hyp = sqrt(cY*cY+cX*cX)
     val dx: Double = x - (if(x<p1) p1 else if(x>p2) p2 else p1+(p2-p1)/2)
     val dy: Double = y - alt
 
-    val tarAng = round(toDegrees(asin(sin(dx / dy)))).toInt - ang
-
-    if (tarAng > 15) 15
-    else if (tarAng < -15) -15
-    else tarAng
+    val tarAng = round(toDegrees(atan(dy/dx))).toInt - ang
+    println(s"$tarAng")
+    if (tarAng > 0 && tarAng < 15) tarAng
+    else if (tarAng < 0 && tarAng > -15) -tarAng
+    else if (tarAng >= 15) 15
+    else if (tarAng <= -15) -15
+    else 0
   }
 }
 
@@ -120,8 +121,8 @@ case class LandingData(var x: Int = 0, var y: Int = 0, var hs: Int = 0, var vs: 
 object MarsLander {
   def main(args: Array[String]): Unit = {
     val ml = new MarsLander
-//    val q1 = ml.plotRoute(Queue(LandingData(6500, 2700,hs= 50, ang=90)))
-    val q1 = ml.plotRoute(Queue(LandingData(7500, 2700)))
+    val q1 = ml.plotRoute(Queue(LandingData(6500, 2700, hs=50, ang=90)))
+    //val q1 = ml.plotRoute(Queue(LandingData(2500, 2700)))
     q1.foreach(println)
     //    println(ml.calcAngle(LandingData(4500, 2700)))
   }
