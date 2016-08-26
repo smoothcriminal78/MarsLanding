@@ -44,6 +44,16 @@ class MarsLander {
     }
   }
 
+  /**
+    * Calculates throttle shift - by 1 for turn
+    *
+    * @param th1 current throttle
+    * @param th2 target throttle
+    **/
+  def rangeThr(th1: Int, th2:Int) = {
+    if(th1 > th2 && th1 > 0) -1 else if(th1 < th2 && th1 < 4) 1 else 0
+  }
+
   def plotRoute(q: Queue[LandingData]): Queue[LandingData] = {
     val e = q.last.copy()
     println(e)
@@ -52,10 +62,10 @@ class MarsLander {
 
     if (y > alt) {
       ang += rangeAng(ang, calcAngle(e))
-      //th = if (vs < -39) 4 else 3
-      th = if (ang >= 22 || vs < -39) 4 else 3
+      th+=rangeThr(th, calcThrottle(e))
       if (x < p1 || x > p2) {
-        val ab = applyBraking(Queue(e.copy(t = 2)), -ang)
+        val ba = if(ang< -45) -22 else if (ang>45) 22 else ang
+        val ab = applyBraking(Queue(e.copy(t = 2)), -ba)
         if (ab._1.isEmpty) {
           q += nextPoint(e)
         } else {
@@ -94,9 +104,9 @@ class MarsLander {
 
   def applyBraking(q: Queue[LandingData], a: Int): (Queue[LandingData], Int) = {
     val e = q.last.copy()
+    println(s"braking: $e")
     e.ang += rangeAng(e.ang, a)
-
-    e.th = if (e.ang >= 22 || e.vs < -39) 4 else 3
+    e.th+=rangeThr(e.th, calcThrottle(e))
 
     val np = nextPoint(e)
 
@@ -130,6 +140,11 @@ class MarsLander {
     val a = round(toDegrees(atan(dx / dy))).toInt
     if (a > 45) 22 else if (a < -45) -22 else a
   }
+
+  def calcThrottle(data: LandingData) = {
+    import data._
+    if (ang <= -22 || ang >= 22 || vs < -39) 4 else if(ang>22 || ang< -22) 2 else 3
+  }
 }
 
 case class LandingData(var x: Int = 0, var y: Int = 0, var hs: Int = 0, var vs: Int = 0, var ang: Int = 0, var th: Int = 0, var t: Int = 0)
@@ -139,7 +154,7 @@ object MarsLander {
     val ml = new MarsLander
     val q1 = ml.plotRoute(Queue(LandingData(6500, 2700, hs = -50, ang = 90)))
     //val q1 = ml.plotRoute(Queue(LandingData(2500, 2700)))
-    q1.foreach(println)
+    //q1.foreach(println)
     //    println(ml.calcAngle(LandingData(4500, 2700)))
   }
 }
