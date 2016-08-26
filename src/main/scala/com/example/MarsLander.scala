@@ -13,19 +13,15 @@ class MarsLander {
   //  val p2 = 5500
   //  val alt = 150
 
-  val p1 = 500
-  val p2 = 1500
-  val alt = 2100
-
   val segments = ArrayBuffer((0, 1000), (300, 1500), (350, 1400), (500, 2100), (1500, 2100), (2000, 200), (2500, 500), (2900, 300), (3000, 200), (3200, 1000), (3500, 500), (3800, 800), (4000, 200), (4200, 800), (4800, 600), (5000, 1200), (5500, 900), (6000, 500), (6500, 300), (6999, 500))
 
   val ground = segments.sliding(2).filter { case (ArrayBuffer(v1, v2)) => v1._2 == v2._2 }.toList
   val groundY = ground.map { case (ArrayBuffer(v1, v2)) => v1._2 }.max
   val groundX = ground.map { case (ArrayBuffer(v1, v2)) => (v1._1, v2._1) }.max
 
-  //val p1 = groundX._1
-  //val p2 = groundX._2
-  //val alt = groundY
+  val p1 = groundX._1
+  val p2 = groundX._2
+  val alt = groundY
 
   /**
     * Calculates shift in degrees - by 15 degrees max for turn
