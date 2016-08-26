@@ -9,9 +9,9 @@ import scala.math._
 class MarsLander {
   val G = 3.711
 
-  //  val p1 = 4000
-  //  val p2 = 5500
-  //  val alt = 150
+  //val p1 = 4000
+  //val p2 = 5500
+  //val alt = 150
 
   val segments = ArrayBuffer((0, 1000), (300, 1500), (350, 1400), (500, 2100), (1500, 2100), (2000, 200), (2500, 500), (2900, 300), (3000, 200), (3200, 1000), (3500, 500), (3800, 800), (4000, 200), (4200, 800), (4800, 600), (5000, 1200), (5500, 900), (6000, 500), (6500, 300), (6999, 500))
 
@@ -34,7 +34,7 @@ class MarsLander {
     else if (a1 > 0 && a2 < 0) -1 * (a1 + abs(a2))
     else if (a1 < 0 && a2 < 0) if (a1 > a2) -1 * (abs(a2) - abs(a1)) else abs(a2) - abs(a1)
     else if (a1 < 0 && a2 > 0) abs(a1) + a2
-    else if (a1 == 0 && a2 > 0) -a2 else if (a1 == 0 && a2 < 0) a2 else if (a1 > 0 && a2 == 0) -a1 else if (a1 < 0 && a2 == 0) a1 else 0
+    else if (a1 == 0 && a2 > 0) a2 else if (a1 == 0 && a2 < 0) a2 else if (a1 > 0 && a2 == 0) -a1 else if (a1 < 0 && a2 == 0) abs(a1) else 0
 
     delta match {
       case d if d >= 15 => 15
@@ -78,6 +78,7 @@ class MarsLander {
 
   def levelOff(q: Queue[LandingData]): Queue[LandingData] = {
     val e = q.last.copy()
+    //println(s"leveloff: $e")
     e.ang += rangeAng(e.ang, 0)
 
     val np = nextPoint(e)
@@ -93,7 +94,7 @@ class MarsLander {
 
   def applyBraking(q: Queue[LandingData], a: Int): (Queue[LandingData], Int) = {
     val e = q.last.copy()
-    e.ang = rangeAng(e.ang, -e.ang)
+    e.ang += rangeAng(e.ang, a)
 
     e.th = if (e.ang >= 22 || e.vs < -39) 4 else 3
 
@@ -101,7 +102,7 @@ class MarsLander {
 
     import np._
 
-    if (abs(hs) <= 20 || np.hs > e.hs || y <= alt) {
+    if (abs(hs) <= 20 || y <= alt) {
       if (y >= alt && x >= p1 && x <= p2) ((q, a)) else ((Queue(), -1))
     } else {
       q += LandingData(x, y, hs, vs, ang, th, 2);
