@@ -60,6 +60,8 @@ object MainWindow extends SimpleSwingApplication {
         val ml = new MarsLander
         val r = ml.plotRoute(MarsLander.init).flatMap(List(_)).toList
         routes += (if (routes.isEmpty) 0 else routes.keys.max + 1) -> r
+        println("---------ROUTE---------")
+        r.foreach(println)
 
         repaint()
       }

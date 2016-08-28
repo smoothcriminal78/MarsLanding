@@ -55,16 +55,26 @@ class MarsLander {
     import e._
 
     if (y > alt) {
-      val ia = calcAngle(e)
-      val ca = if (x >= p1 && x <= p2 && ang == 0) 0 else if (ia > 45) 22 else if (ia < -45) -22 else ia
-      ang = rangeAng(ang, ca)
+      val ca = calcAngle(e)
+      val fa = if (x >= p1 && x <= p2 && ang == 0) 0
+      else if (ca > 39) 22
+      else if (ca < -39) -22
+      else ca
+
+
+      ang = rangeAng(ang, fa)
       th = rangeThr(th, calcThrottle(e))
       if (x < p1 || x > p2) {
 
-        val ba = ang
-        val ab = braking(Queue(e.copy(t = 2)), -ba)
+        val ga = if (ca > 0 && ca < 37) 36
+        else if (ca < 0 && ca > -37) -36
+        else if (ca >0 && ca < 40) 39
+        else if (ca < 0 && ca > -40) -39
+        else if (ca > 0 && ca >= 40) 22
+        else if (ca < 0 && ca <= -40) -22
+        else ca
 
-//        val ab = braking(Queue(e.copy(t = 2)), -ca)
+        val ab = braking(Queue(e.copy(t = 2)), -ga)
         if (ab._1.isEmpty) {
           q += nextPoint(e)
         } else {
@@ -88,7 +98,8 @@ class MarsLander {
   def levelOff(q: Queue[LandingData]): Queue[LandingData] = {
     val e = q.last.copy()
     //println(s"leveloff: $e")
-    e.ang = rangeAng(e.ang, 0)
+    val na = if (e.hs > 0) 15 else if (e.hs < 0) -15 else 0
+    e.ang = rangeAng(e.ang, na)
 
     val np = nextPoint(e)
 
@@ -110,11 +121,11 @@ class MarsLander {
 
     import np._
     q += LandingData(x, y, hs, vs, ang, th, 2)
-//    (hs <= 20 && x >= p1 && x + hs <= p2) || (hs >= -20 && hs < 0 && x <= p2 && x + hs >= p1) ||
+    //    (hs <= 20 && x >= p1 && x + hs <= p2) || (hs >= -20 && hs < 0 && x <= p2 && x + hs >= p1) ||
     if (hs == 0 || e.x == np.x || e.x == np.x + np.hs || y <= alt || x < 0) {
       //      println(s"braking -------------------------------------------> $e")
       //      println(s"braking -------------------------------------------> $np")
-      if (y >= alt && x >= p1 + 100 && x <= p2 - 100) (q.tail, a) else (Queue(), -1)
+      if (y >= alt && x >= p1 && x <= p2) (q.tail, a) else (Queue(), -1)
     }
     else braking(q, a)
   }
@@ -141,7 +152,13 @@ class MarsLander {
 
   def calcThrottle(data: LandingData) = {
     import data._
-    if (ang <= -22 || ang >= 22 || vs < -39) 4 else if (ang < 22 || ang > -22) 3 else 2
+    //    if (ang <= -22 || ang >= 22 || vs < -39) 4 else if (ang < 22 || ang > -22) 3 else 2
+    if (vs < -39) 4
+    else if (t == 2 && ((hs < 0 && ang < 0) || (hs > 0 && ang > 0))) 4
+    //    else if (t == 1 && vs> -39) 2
+    else if (ang == 0) 4
+    else if (ang <= -22 || ang >= 22) 4
+    else 3
   }
 }
 
@@ -157,16 +174,16 @@ object MarsLander {
 //  val init = Queue(LandingData(6500, 2800, hs = -100, ang = 90))
 
   //initial speed, wrong side
-//      val segments = ArrayBuffer((0, 100), (1000, 500), (1500, 1500), (3000, 1000), (4000, 150), (5500, 150), (6999, 800))
-//      val init = Queue(LandingData(6500, 2800, hs = -90, ang = 90))
+//                val segments = ArrayBuffer((0, 100), (1000, 500), (1500, 1500), (3000, 1000), (4000, 150), (5500, 150), (6999, 800))
+//                val init = Queue(LandingData(6500, 2800, hs = -90, ang = 90))
 
   //Deep canyon
-//            val segments = ArrayBuffer((0, 1000), (300, 1500), (350, 1400), (500, 2000), (800, 1800), (1000, 2500), (1200, 2100), (1500, 2400), (2000, 1000), (2200, 500), (2500, 100), (2900, 800), (3000, 500), (3200, 1000), (3500, 2000), (3800, 800), (4000, 200), (5000, 200), (5500, 1500), (6999, 2800))
-//            val init = Queue(LandingData(500, 2700, hs = 100, ang = -90))
+        val segments = ArrayBuffer((0, 1000), (300, 1500), (350, 1400), (500, 2000), (800, 1800), (1000, 2500), (1200, 2100), (1500, 2400), (2000, 1000), (2200, 500), (2500, 100), (2900, 800), (3000, 500), (3200, 1000), (3500, 2000), (3800, 800), (4000, 200), (5000, 200), (5500, 1500), (6999, 2800))
+        val init = Queue(LandingData(500, 2700, hs = 100, ang = -90))
 
   //high ground
-    val segments = ArrayBuffer((0, 1000), (300, 1500), (350, 1400), (500, 2100), (1500, 2100), (2000, 200), (2500, 500), (2900, 300), (3000, 200), (3200, 1000), (3500, 500), (3800, 800), (4000, 200), (4200, 800), (4800, 600), (5000, 1200), (5500, 900), (6000, 500), (6500, 300), (6999, 500))
-    val init = Queue(LandingData(6500, 2700, hs = -50, ang = 90))
+  //  val segments = ArrayBuffer((0, 1000), (300, 1500), (350, 1400), (500, 2100), (1500, 2100), (2000, 200), (2500, 500), (2900, 300), (3000, 200), (3200, 1000), (3500, 500), (3800, 800), (4000, 200), (4200, 800), (4800, 600), (5000, 1200), (5500, 900), (6000, 500), (6500, 300), (6999, 500))
+  //  val init = Queue(LandingData(6500, 2700, hs = -50, ang = 90))
 
   val landSpot = segments.sliding(2).filter { case (ArrayBuffer(v1, v2)) => v1._2 == v2._2 }.toList
   val landSpotY = landSpot.map { case (ArrayBuffer(v1, v2)) => v1._2 }.max
@@ -183,6 +200,8 @@ object MarsLander {
 
     //    val q2 = ml.braking(Queue(LandingData(1472,816,-206,-106,-15,4,0)), )
     //    q2._1.foreach(println)
+
+    println("------------------------------")
     q1.foreach(println)
   }
 }
