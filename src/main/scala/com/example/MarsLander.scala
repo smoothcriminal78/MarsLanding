@@ -58,28 +58,29 @@ class MarsLander {
       if (x < p1 || x > p2 || abs(hs) > 10) {
         // braking
         val ga = (if (hs < 0) -1 else 1) * (if (abs(e.ang) < 22) 45 else if (abs(e.ang) < 55) 36 else 22)
-        val bq = braking(List(e.copy(ang = ga, t = 1)))
-        if(bq.nonEmpty) plotRoute(q ++ bq) else plotRoute(q :+ np)
+        val bq = braking(List(e.copy(t = 1)), ga)
+        if(bq._1.nonEmpty) plotRoute(q ++ bq._1) else plotRoute(q :+ np)
       } else if (x >= p1 && x <= p2 && (ang != 0 || hs != 0)) {
         //leveloff
         e.ang = if (e.hs > 0) rangeAng(e.ang, 15) else if (e.hs < 0) rangeAng(e.ang, -15) else rangeAng(e.ang, 0)
-        plotRoute(q :+ np)
+        plotRoute(q :+ np.copy(t=2))
       } else {
         plotRoute(q :+ np)
       }
     } else q
   }
 
-  def braking(q: List[LandingData]): List[LandingData] = {
+  def braking(q: List[LandingData], a:Int): (List[LandingData], Int) = {
     val e = q.last.copy()
-    e.th = throttle(e)
+    e.ang = rangeAng(e.ang, a)
+    e.th = rangeThr(e.th, throttle(e))
     val np = nextPoint(e)
 
     import np._
     if (hs == 0 || e.x == np.x || y <= alt || x < 0) {
-      if (y >= alt && x >= p1 && x <= p2) q.tail else List()
+      if (y >= alt && x >= p1 && x <= p2) (q, a) else (List(), a)
     }
-    else braking(q :+ np)
+    else braking(q :+ np, a)
   }
 
   def nextPoint(data: LandingData) = {
